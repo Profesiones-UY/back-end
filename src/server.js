@@ -9,8 +9,6 @@ const authRoutes = require('./routes/auth.routes');
 
 const app = express();
 
-console.log("Testeo de push");
-
 // Middleware
 app.use(cors());
 app.use(express.json());
