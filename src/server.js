@@ -8,6 +8,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+console.log('Test commit a prod');
+
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
