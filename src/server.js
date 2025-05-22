@@ -9,6 +9,8 @@ const authRoutes = require('./routes/auth.routes');
 
 const app = express();
 
+console.log("Testing de pipeline de DEV a PROD");
+
 // Middleware
 app.use(cors());
 app.use(express.json());
