@@ -8,10 +8,16 @@ const {
     setProfessionalSchedule,
     getProfessionalSchedule,
     rateProfessional,
-    getProfessionalRatings
+    getProfessionalRatings,
+    getAllClients,
+    getAllProfessionals
 } = require('../controllers/profile.controller');
 
-// Rutas para gestión de perfiles
+// Rutas para listar todos los usuarios
+router.get('/clientes', getAllClients);
+router.get('/profesionales', getAllProfessionals);
+
+// Rutas para gestión de perfiles individuales
 router.get('/cliente/:id', getClientProfile);
 router.get('/profesional/:id', getProfessionalProfile);
 router.put('/cliente/actualizar/:id', updateClientProfile);

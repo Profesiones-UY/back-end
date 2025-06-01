@@ -1,140 +1,229 @@
-const Cliente = require('../models/Cliente');
-const Profesional = require('../models/Profesional');
+const Cliente = require('../models/cliente.model');
+const Profesional = require('../models/profesional.model');
+
+// Obtener todos los clientes
+const getAllClients = async (req, res) => {
+    try {
+        const clientes = await Cliente.find()
+            .select('-password') // Excluimos la contraseña
+            .sort({ createdAt: -1 }); // Ordenamos por fecha de creación, más recientes primero
+
+        res.json({
+            success: true,
+            data: clientes
+        });
+    } catch (error) {
+        console.error('Error al obtener clientes:', error);
+        res.status(500).json({
+            success: false,
+            mensaje: 'Error al obtener la lista de clientes',
+            error: error.message
+        });
+    }
+};
+
+// Obtener todos los profesionales
+const getAllProfessionals = async (req, res) => {
+    try {
+        const profesionales = await Profesional.find()
+            .select('-password') // Excluimos la contraseña
+            .sort({ promedioCalificacion: -1 }); // Ordenamos por calificación, mejor calificados primero
+
+        res.json({
+            success: true,
+            data: profesionales
+        });
+    } catch (error) {
+        console.error('Error al obtener profesionales:', error);
+        res.status(500).json({
+            success: false,
+            mensaje: 'Error al obtener la lista de profesionales',
+            error: error.message
+        });
+    }
+};
 
 // Obtener perfil de cliente
-exports.getClientProfile = async (req, res) => {
+const getClientProfile = async (req, res) => {
     try {
         const cliente = await Cliente.findById(req.params.id)
-            .select('-password') // Excluimos la contraseña de la respuesta
-            .populate('historialCitas');
+            .select('-password')
+            .populate('historialServicios.servicio');
 
         if (!cliente) {
-            return res.status(404).json({ mensaje: 'Cliente no encontrado' });
+            return res.status(404).json({
+                success: false,
+                mensaje: 'Cliente no encontrado'
+            });
         }
 
-        res.json(cliente);
+        res.json({
+            success: true,
+            data: cliente
+        });
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al obtener el perfil del cliente', error: error.message });
+        res.status(500).json({
+            success: false,
+            mensaje: 'Error al obtener el perfil del cliente',
+            error: error.message
+        });
     }
 };
 
 // Obtener perfil de profesional
-exports.getProfessionalProfile = async (req, res) => {
+const getProfessionalProfile = async (req, res) => {
     try {
         const profesional = await Profesional.findById(req.params.id)
-            .select('-password') // Excluimos la contraseña de la respuesta
-            .populate('servicios')
+            .select('-password')
             .populate('calificaciones.cliente', 'nombre apellido');
 
         if (!profesional) {
-            return res.status(404).json({ mensaje: 'Profesional no encontrado' });
+            return res.status(404).json({
+                success: false,
+                mensaje: 'Profesional no encontrado'
+            });
         }
 
-        res.json(profesional);
+        res.json({
+            success: true,
+            data: profesional
+        });
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al obtener el perfil del profesional', error: error.message });
+        res.status(500).json({
+            success: false,
+            mensaje: 'Error al obtener el perfil del profesional',
+            error: error.message
+        });
     }
 };
 
 // Actualizar perfil de cliente
-exports.updateClientProfile = async (req, res) => {
+const updateClientProfile = async (req, res) => {
     try {
         const clienteActualizado = await Cliente.findByIdAndUpdate(
             req.params.id,
-            {
-                $set: {
-                    nombre: req.body.nombre,
-                    apellido: req.body.apellido,
-                    telefono: req.body.telefono,
-                    direccion: req.body.direccion
-                }
-            },
+            { $set: req.body },
             { new: true, runValidators: true }
         ).select('-password');
 
         if (!clienteActualizado) {
-            return res.status(404).json({ mensaje: 'Cliente no encontrado' });
+            return res.status(404).json({
+                success: false,
+                mensaje: 'Cliente no encontrado'
+            });
         }
 
-        res.json(clienteActualizado);
+        res.json({
+            success: true,
+            data: clienteActualizado
+        });
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al actualizar el perfil del cliente', error: error.message });
+        res.status(500).json({
+            success: false,
+            mensaje: 'Error al actualizar el perfil del cliente',
+            error: error.message
+        });
     }
 };
 
 // Actualizar perfil de profesional
-exports.updateProfessionalProfile = async (req, res) => {
+const updateProfessionalProfile = async (req, res) => {
     try {
         const profesionalActualizado = await Profesional.findByIdAndUpdate(
             req.params.id,
-            {
-                $set: {
-                    nombre: req.body.nombre,
-                    apellido: req.body.apellido,
-                    telefono: req.body.telefono,
-                    profesion: req.body.profesion,
-                    especialidad: req.body.especialidad,
-                    descripcion: req.body.descripcion,
-                    experiencia: req.body.experiencia,
-                    tarifaBase: req.body.tarifaBase,
-                    estado: req.body.estado
-                }
-            },
+            { $set: req.body },
             { new: true, runValidators: true }
         ).select('-password');
 
         if (!profesionalActualizado) {
-            return res.status(404).json({ mensaje: 'Profesional no encontrado' });
+            return res.status(404).json({
+                success: false,
+                mensaje: 'Profesional no encontrado'
+            });
         }
 
-        res.json(profesionalActualizado);
+        res.json({
+            success: true,
+            data: profesionalActualizado
+        });
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al actualizar el perfil del profesional', error: error.message });
-    }
-};
-
-// Obtener horario del profesional
-exports.getProfessionalSchedule = async (req, res) => {
-    try {
-        const profesional = await Profesional.findById(req.params.id)
-            .select('horarioDisponible');
-
-        if (!profesional) {
-            return res.status(404).json({ mensaje: 'Profesional no encontrado' });
-        }
-
-        res.json(profesional.horarioDisponible);
-    } catch (error) {
-        res.status(500).json({ mensaje: 'Error al obtener el horario del profesional', error: error.message });
+        res.status(500).json({
+            success: false,
+            mensaje: 'Error al actualizar el perfil del profesional',
+            error: error.message
+        });
     }
 };
 
 // Establecer horario del profesional
-exports.setProfessionalSchedule = async (req, res) => {
+const setProfessionalSchedule = async (req, res) => {
     try {
         const profesional = await Profesional.findByIdAndUpdate(
             req.params.id,
-            { $set: { horarioDisponible: req.body.horario } },
-            { new: true, runValidators: true }
-        ).select('horarioDisponible');
+            { 
+                $set: { 
+                    'disponibilidad.horarios': req.body.horarios 
+                } 
+            },
+            { new: true }
+        );
 
         if (!profesional) {
-            return res.status(404).json({ mensaje: 'Profesional no encontrado' });
+            return res.status(404).json({
+                success: false,
+                mensaje: 'Profesional no encontrado'
+            });
         }
 
-        res.json(profesional.horarioDisponible);
+        res.json({
+            success: true,
+            data: profesional.disponibilidad
+        });
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al actualizar el horario del profesional', error: error.message });
+        res.status(500).json({
+            success: false,
+            mensaje: 'Error al actualizar el horario',
+            error: error.message
+        });
+    }
+};
+
+// Obtener horario del profesional
+const getProfessionalSchedule = async (req, res) => {
+    try {
+        const profesional = await Profesional.findById(req.params.id)
+            .select('disponibilidad');
+
+        if (!profesional) {
+            return res.status(404).json({
+                success: false,
+                mensaje: 'Profesional no encontrado'
+            });
+        }
+
+        res.json({
+            success: true,
+            data: profesional.disponibilidad
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            mensaje: 'Error al obtener el horario',
+            error: error.message
+        });
     }
 };
 
 // Calificar a un profesional
-exports.rateProfessional = async (req, res) => {
+const rateProfessional = async (req, res) => {
     try {
         const profesional = await Profesional.findById(req.params.id);
 
         if (!profesional) {
-            return res.status(404).json({ mensaje: 'Profesional no encontrado' });
+            return res.status(404).json({
+                success: false,
+                mensaje: 'Profesional no encontrado'
+            });
         }
 
         const nuevaCalificacion = {
@@ -151,28 +240,62 @@ exports.rateProfessional = async (req, res) => {
 
         await profesional.save();
 
-        res.json({ mensaje: 'Calificación agregada exitosamente', promedioCalificacion: profesional.promedioCalificacion });
+        res.json({
+            success: true,
+            mensaje: 'Calificación agregada exitosamente',
+            data: {
+                promedioCalificacion: profesional.promedioCalificacion,
+                calificacion: nuevaCalificacion
+            }
+        });
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al calificar al profesional', error: error.message });
+        res.status(500).json({
+            success: false,
+            mensaje: 'Error al calificar al profesional',
+            error: error.message
+        });
     }
 };
 
 // Obtener calificaciones de un profesional
-exports.getProfessionalRatings = async (req, res) => {
+const getProfessionalRatings = async (req, res) => {
     try {
         const profesional = await Profesional.findById(req.params.id)
             .select('calificaciones promedioCalificacion')
             .populate('calificaciones.cliente', 'nombre apellido');
 
         if (!profesional) {
-            return res.status(404).json({ mensaje: 'Profesional no encontrado' });
+            return res.status(404).json({
+                success: false,
+                mensaje: 'Profesional no encontrado'
+            });
         }
 
         res.json({
-            calificaciones: profesional.calificaciones,
-            promedioCalificacion: profesional.promedioCalificacion
+            success: true,
+            data: {
+                calificaciones: profesional.calificaciones,
+                promedioCalificacion: profesional.promedioCalificacion
+            }
         });
     } catch (error) {
-        res.status(500).json({ mensaje: 'Error al obtener las calificaciones', error: error.message });
+        res.status(500).json({
+            success: false,
+            mensaje: 'Error al obtener las calificaciones',
+            error: error.message
+        });
     }
+};
+
+module.exports = {
+    getAllClients,
+    getAllProfessionals,
+    getClientProfile,
+    getProfessionalProfile,
+    updateClientProfile,
+    updateProfessionalProfile,
+    setProfessionalSchedule,
+    getProfessionalSchedule,
+    rateProfessional,
+    getProfessionalRatings
 }; 

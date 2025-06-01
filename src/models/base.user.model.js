@@ -54,6 +54,12 @@ const baseSchema = new mongoose.Schema({
     ultimoAcceso: {
         type: Date,
         default: Date.now
+    },
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
+    createdAt: {
+        type: Date,
+        default: Date.now
     }
 }, {
     timestamps: true,
