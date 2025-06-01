@@ -4,8 +4,14 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
+// Importar modelos
+require('./models/base.user.model');  // Primero importamos el modelo base
+require('./models/cliente.model');    // Luego los modelos que heredan
+require('./models/profesional.model');
+
 // Importar rutas
 const authRoutes = require('./routes/auth.routes');
+const profileRoutes = require('./routes/profile.routes');
 
 const app = express();
 
@@ -28,6 +34,7 @@ app.get('/', (req, res) => {
 
 // Rutas de la API
 app.use('/api/auth', authRoutes);
+app.use('/api/profiles', profileRoutes);
 
 // Manejo de errores global
 app.use((err, req, res, next) => {
