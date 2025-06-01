@@ -1,6 +1,28 @@
 const mongoose = require('mongoose');
 const { BaseUser, baseSchema } = require('./base.user.model');
 
+// Definimos el esquema de calificación
+const calificacionSchema = new mongoose.Schema({
+    cliente: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Cliente',
+        required: true
+    },
+    puntuacion: {
+        type: Number,
+        required: true,
+        min: 0,
+        max: 5
+    },
+    comentario: {
+        type: String
+    },
+    fecha: {
+        type: Date,
+        default: Date.now
+    }
+});
+
 const profesionalSchema = new mongoose.Schema({
     // Campos específicos de profesionales
     profesion: {
@@ -15,17 +37,13 @@ const profesionalSchema = new mongoose.Schema({
         type: Number, // años de experiencia
         required: true
     },
-    calificacion: {
-        promedio: {
-            type: Number,
-            default: 0,
-            min: 0,
-            max: 5
-        },
-        totalReseñas: {
-            type: Number,
-            default: 0
-        }
+    // Nuevo sistema de calificaciones
+    calificaciones: [calificacionSchema],
+    promedioCalificacion: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 5
     },
     disponibilidad: {
         horarios: [{
@@ -68,8 +86,8 @@ const profesionalSchema = new mongoose.Schema({
     }
 });
 
-// Índice para búsqueda por calificación
-profesionalSchema.index({ 'calificacion.promedio': -1 });
+// Índice para búsqueda por calificación promedio
+profesionalSchema.index({ promedioCalificacion: -1 });
 
 const Profesional = BaseUser.discriminator('Profesional', profesionalSchema);
 
