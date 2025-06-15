@@ -49,7 +49,8 @@ const registroProfesional = async (req, res) => {
     try {
         const {
             email, password, nombre, apellido, telefono, ubicacion,
-            profesion, especialidades, experiencia, servicios, radio_cobertura
+            profesion, especialidades, experiencia, servicios, radio_cobertura,
+            disponibilidad
         } = req.body;
 
         // Verificar si el usuario ya existe
@@ -74,6 +75,10 @@ const registroProfesional = async (req, res) => {
             experiencia,
             servicios,
             radio_cobertura,
+            disponibilidad: disponibilidad || {
+                horarios: [],
+                estado: 'disponible'
+            },
             documentosVerificados: {
                 dni: { verificado: false },
                 matricula: { verificado: false },
