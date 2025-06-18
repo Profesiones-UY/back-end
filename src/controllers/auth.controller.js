@@ -7,7 +7,7 @@ const nodemailer = require('nodemailer');
 
 const registroCliente = async (req, res) => {
     try {
-        const { email, password, nombre, apellido, telefono, ubicacion, metodoPago } = req.body;
+        const { email, password, nombre, direccion, direccionesFavoritas, apellido, telefono, ubicacion, metodoPago } = req.body;
 
         // Verificar si el usuario ya existe
         const usuarioExistente = await Cliente.findOne({ email });
@@ -23,6 +23,8 @@ const registroCliente = async (req, res) => {
             email,
             password,
             nombre,
+            direccion,
+            direccionesFavoritas: direccionesFavoritas || [],
             apellido,
             telefono,
             ubicacion,
