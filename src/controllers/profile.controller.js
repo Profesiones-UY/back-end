@@ -287,6 +287,40 @@ const getProfessionalRatings = async (req, res) => {
     }
 };
 
+// Buscar profesionales por profesión
+const searchProfessionalsByProfession = async (req, res) => {
+    try {
+        const { profesion } = req.query;
+        
+        if (!profesion) {
+            return res.status(400).json({
+                success: false,
+                mensaje: 'El parámetro profesión es requerido'
+            });
+        }
+
+        // Buscar profesionales que coincidan con la profesión (búsqueda insensible a mayúsculas)
+        const profesionales = await Profesional.find({
+            profesion: { $regex: profesion, $options: 'i' }
+        })
+        .select('-password')
+        .sort({ promedioCalificacion: -1 });
+
+        res.json({
+            success: true,
+            data: profesionales,
+            total: profesionales.length
+        });
+    } catch (error) {
+        console.error('Error al buscar profesionales:', error);
+        res.status(500).json({
+            success: false,
+            mensaje: 'Error al buscar profesionales',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     getAllClients,
     getAllProfessionals,
@@ -297,5 +331,6 @@ module.exports = {
     setProfessionalSchedule,
     getProfessionalSchedule,
     rateProfessional,
-    getProfessionalRatings
-}; 
+    getProfessionalRatings,
+    searchProfessionalsByProfession
+};
