@@ -16,6 +16,7 @@ const authRoutes = require('./routes/auth.routes');
 const profileRoutes = require('./routes/profile.routes');
 const appointmentRoutes = require('./routes/appointment.routes');
 const connectionRoutes = require('./routes/connection.routes');
+const chatRoutes = require('./routes/chat.routes');
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/profiles', profileRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/connections', connectionRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Manejo de errores global
 app.use((err, req, res, next) => {
