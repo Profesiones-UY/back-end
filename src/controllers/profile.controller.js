@@ -321,6 +321,38 @@ const searchProfessionalsByProfession = async (req, res) => {
     }
 };
 
+// Buscar profesionales cercanos a una ubicación
+const getProfesionalesCercanos = async (req, res) => {
+    try {
+        const { lat, lng, maxDistance } = req.query;
+        if (!lat || !lng) {
+            return res.status(400).json({
+                success: false,
+                mensaje: 'Faltan coordenadas (lat, lng) en la consulta.'
+            });
+        }
+        const distancia = parseInt(maxDistance) || 15000; // 15km por defecto
+        const profesionales = await Profesional.find({
+            ubicacion: {
+                $near: {
+                    $geometry: { type: 'Point', coordinates: [parseFloat(lng), parseFloat(lat)] },
+                    $maxDistance: distancia
+                }
+            }
+        }).select('nombre apellido profesion ubicacion promedioCalificacion');
+        res.json({
+            success: true,
+            data: profesionales
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            mensaje: 'Error al buscar profesionales cercanos',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     getAllClients,
     getAllProfessionals,
@@ -332,5 +364,6 @@ module.exports = {
     getProfessionalSchedule,
     rateProfessional,
     getProfessionalRatings,
-    searchProfessionalsByProfession
+    searchProfessionalsByProfession,
+    getProfesionalesCercanos
 };

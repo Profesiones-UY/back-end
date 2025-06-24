@@ -11,7 +11,8 @@ const {
     getProfessionalRatings,
     getAllClients,
     getAllProfessionals,
-    searchProfessionalsByProfession
+    searchProfessionalsByProfession,
+    getProfesionalesCercanos
 } = require('../controllers/profile.controller');
 
 // Rutas para listar todos los usuarios
@@ -20,6 +21,9 @@ router.get('/profesionales', getAllProfessionals);
 
 // Ruta para buscar profesionales por profesión
 router.get('/profesionales/buscar', searchProfessionalsByProfession);
+
+// Ruta para buscar profesionales cercanos a una ubicación
+router.get('/profesionales/cercanos', getProfesionalesCercanos);
 
 // Rutas para gestión de perfiles individuales
 router.get('/cliente/:id', getClientProfile);
